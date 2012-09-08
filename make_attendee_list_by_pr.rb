@@ -1,5 +1,6 @@
 require 'net/https'
 require 'json'
+require 'axlsx'
 
 def get_personal_info_by_pull_request(https, pr_no, applied_email)
   # pr_no, icon, login_name, name, email
@@ -20,13 +21,9 @@ def get_personal_info_by_pull_request(https, pr_no, applied_email)
     info << user_info["name"]
     email = user_info["email"]
     info << applied_email
-
-    if(email != applied_email)
-      info << "unmatched email!"
-    end
   end
-
-  info.join(",")
+  
+  info
 end
 
 def main
@@ -41,20 +38,24 @@ def main
   https = Net::HTTP.new('api.github.com',443)
   https.use_ssl = true
 
-  output_line = []
+  output_lines = []
   File.open(input_filename) do |f|
     i = 0
     f.each_line do |line|
       pr_no, email = line.split(/\s/)
       
-      output_line << get_personal_info_by_pull_request(https, pr_no, email) if i < 2
+      output_lines << get_personal_info_by_pull_request(https, pr_no, email) if i < 2
       i += 1
     end
   end
 
-  File.open(output_filename, 'w') do |f|
-    f.puts(output_line.join("\n"))
+  package = Axlsx::Package.new
+  worksheet = package.workbook.add_worksheet(name: File.basename(output_filename, ".*"))
+  output_lines.each do |line|
+    worksheet.add_row(line)
   end
+  package.use_shared_strings = true # for Numbers
+  package.serialize(output_filename)
 end
 
 main()
