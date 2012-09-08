@@ -42,7 +42,7 @@ def main
   https.use_ssl = true
 
   output_line = []
-  File.open("speakers.txt") do |f|
+  File.open(input_filename) do |f|
     i = 0
     f.each_line do |line|
       pr_no, email = line.split(/\s/)
@@ -52,7 +52,7 @@ def main
     end
   end
 
-  File.open("speakers_list.csv", 'w') do |f|
+  File.open(output_filename, 'w') do |f|
     f.puts(output_line.join("\n"))
   end
 end
