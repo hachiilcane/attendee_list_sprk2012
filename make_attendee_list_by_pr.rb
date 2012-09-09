@@ -11,18 +11,18 @@ def get_personal_info_by_pull_request(https, pr_no, applied_email)
     response = w.get("/repos/sprk2012/sprk2012-cfp/pulls/#{pr_no}")
     pr_info = JSON.parse(response.body)
 
-    avatar_url = pr_info["head"]["user"]["avatar_url"]
+    avatar_url = pr_info["user"]["avatar_url"]
     img_filename = nil
     img_filename = save_image_file(avatar_url, pr_no) if avatar_url != nil
     info << img_filename
-    login_name = pr_info["head"]["user"]["login"]
+    login_name = pr_info["user"]["login"]
     info << login_name
 
     response = w.get("/users/#{login_name}")
     user_info = JSON.parse(response.body)
 
     info << user_info["name"]
-    email = user_info["email"]
+    # email = user_info["email"]
     info << applied_email
   end
   
