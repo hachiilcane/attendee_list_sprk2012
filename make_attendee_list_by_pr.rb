@@ -11,7 +11,10 @@ def get_personal_info_by_pull_request(https, pr_no, applied_email)
     response = w.get("/repos/sprk2012/sprk2012-cfp/pulls/#{pr_no}")
     pr_info = JSON.parse(response.body)
 
-    info << pr_info["head"]["user"]["avatar_url"]
+    avatar_url = pr_info["head"]["user"]["avatar_url"]
+    img_filename = nil
+    img_filename = save_image_file(avatar_url, pr_no) if avatar_url != nil
+    info << img_filename
     login_name = pr_info["head"]["user"]["login"]
     info << login_name
 
@@ -26,6 +29,24 @@ def get_personal_info_by_pull_request(https, pr_no, applied_email)
   info
 end
 
+def save_image_file(url, save_basename)
+  uri = URI.parse(url)
+
+  http = Net::HTTP.new(uri.host, uri.port)
+  p uri.host
+  p uri.request_uri
+  http.use_ssl = true if uri.scheme == "https"
+
+  extension = uri.request_uri[/\.\w+$/]
+  img = File.expand_path('../avatar/' + save_basename + extension, __FILE__)
+  p img
+  open(img, 'wb') do |file|
+    file.puts http.get(uri.request_uri).body
+  end
+
+  img
+end
+
 def main
   if ARGV.size < 2
     puts "Usage: ruby make_attendee_list_by_pr.rb INPUT_FILE OUTPUT_FILE"
@@ -34,6 +55,9 @@ def main
 
   input_filename = ARGV[0]
   output_filename = ARGV[1]
+
+  image_dir = './avatar'
+  FileUtils.mkdir_p(image_dir) unless FileTest.exist?(image_dir)
 
   https = Net::HTTP.new('api.github.com',443)
   https.use_ssl = true
@@ -44,16 +68,33 @@ def main
     f.each_line do |line|
       pr_no, email = line.split(/\s/)
       
-      output_lines << get_personal_info_by_pull_request(https, pr_no, email) if i < 2
+      output_lines << get_personal_info_by_pull_request(https, pr_no, email)
       i += 1
     end
   end
 
+  # output as xlsx
   package = Axlsx::Package.new
   worksheet = package.workbook.add_worksheet(name: File.basename(output_filename, ".*"))
-  output_lines.each do |line|
-    worksheet.add_row(line)
+
+  output_lines.each_with_index do |line, index|
+    img_filename = line[1]
+    line[1] = nil
+
+    worksheet.add_row(line, :height => 35)
+    if img_filename != nil
+      frame = worksheet.add_image(:image_src => img_filename, :noSelect => true, :noMove => true, :noResize => true) do |image|
+        image.width=30
+        image.height=30
+        image.start_at 1, index
+      end
+
+      # if there isn't the line below, the anchor of the image is not in the right cell. Is this a bug? 
+      frame.anchor.from.rowOff = 10000
+    end
+
   end
+
   package.use_shared_strings = true # for Numbers
   package.serialize(output_filename)
 end
