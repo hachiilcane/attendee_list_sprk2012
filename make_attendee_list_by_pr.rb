@@ -32,22 +32,30 @@ end
 def save_image_file(url, save_basename)
   uri = URI.parse(url)
 
+  # get image
   http = Net::HTTP.new(uri.host, uri.port)
   p uri.host
   p uri.request_uri
   http.use_ssl = true if uri.scheme == "https"
+  response = http.get(uri.request_uri)
 
-  extension = uri.request_uri[/\.\w+$/]
+  # save image
+  extension = ""
+  if /filename=\".+(\..+)\"/ =~ response['Content-Disposition']
+    extension = $1
+  end
   img = File.expand_path('../avatar/' + save_basename + extension, __FILE__)
   p img
-  response_body = http.get(uri.request_uri).body
-  if(response_body.length > 1)
+
+  response_body = response.body
+  if response_body.length > 1
     open(img, 'wb') do |file|
       file.puts response_body
     end
   else
     img = nil
   end
+
   img
 end
 
