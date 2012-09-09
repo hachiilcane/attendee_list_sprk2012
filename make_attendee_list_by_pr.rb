@@ -79,8 +79,9 @@ def main
     i = 0
     f.each_line do |line|
       pr_no, email = line.split(/\s/)
-      
-      output_lines << get_personal_info_by_pull_request(https, pr_no, email)
+      if pr_no.to_i > 0
+        output_lines << get_personal_info_by_pull_request(https, pr_no, email)
+      end
       i += 1
     end
   end
