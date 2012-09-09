@@ -104,30 +104,3 @@ def main
 end
 
 main()
-
-# pull request json
-# "head": {
-#   "user": {
-#       "gravatar_id": "76a777ff80f30bd3b390e275cce625bc",
-#       "login": "amatsuda",
-#       "url": "https://api.github.com/users/amatsuda",
-#       "avatar_url": "https://secure.gravatar.com/avatar/76a777ff80f30bd3b390e275cce625bc?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png",
-#       "id": 11493
-#   },
-
-# user json
-# {
-#   "type": "User",
-#   "gravatar_id": "0fac0b94dd1a21302fab15d141fae4bc",
-#   "public_repos": 4,
-#   "login": "hachiilcane",
-#   "created_at": "2011-08-01T14:31:44Z",
-#   "public_gists": 2,
-#   "followers": 4,
-#   "url": "https://api.github.com/users/hachiilcane",
-#   "avatar_url": "https://secure.gravatar.com/avatar/0fac0b94dd1a21302fab15d141fae4bc?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png",
-#   "following": 4,
-#   "html_url": "https://github.com/hachiilcane",
-#   "id": 951892
-# }
-
