@@ -40,10 +40,14 @@ def save_image_file(url, save_basename)
   extension = uri.request_uri[/\.\w+$/]
   img = File.expand_path('../avatar/' + save_basename + extension, __FILE__)
   p img
-  open(img, 'wb') do |file|
-    file.puts http.get(uri.request_uri).body
+  response_body = http.get(uri.request_uri).body
+  if(response_body.length > 1)
+    open(img, 'wb') do |file|
+      file.puts response_body
+    end
+  else
+    img = nil
   end
-
   img
 end
 
